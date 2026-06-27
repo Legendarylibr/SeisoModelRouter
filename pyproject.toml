@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling", "setuptools>=61"]
+build-backend = "hatchling.build"
+
+[project]
+name = "seiso-model-router"
+version = "0.1.0"
+description = "Standalone Seiso Smart Router service with Nemotron, LiteLLM, and specialist backend lifecycle support"
+readme = "README.md"
+license = { text = "GPL-3.0-only" }
+requires-python = ">=3.10"
+authors = [{ name = "Seiso Contributors" }]
+dependencies = [
+  "fastapi>=0.111",
+  "httpx>=0.27",
+  "litellm>=1.55.0",
+  "psutil>=5.9",
+  "pydantic>=2.6",
+  "pydantic-settings>=2.2",
+  "pyyaml>=6.0",
+  "rich>=13.7",
+  "typer>=0.12",
+  "uvicorn[standard]>=0.29",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2",
+  "pytest-asyncio>=0.23",
+  "ruff>=0.4",
+]
+gpu-metrics = [
+  "nvidia-ml-py>=12.535",
+]
+
+[project.scripts]
+seiso-router = "seiso_cli.main:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["seiso", "seiso_cli"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = ["third_party", ".venv", "venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
