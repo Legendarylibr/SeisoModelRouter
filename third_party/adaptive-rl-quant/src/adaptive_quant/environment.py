@@ -10,7 +10,11 @@ from adaptive_quant.configuration import FrameworkConfig
 from adaptive_quant.features import estimate_layer_sensitivity, extract_input_features
 from adaptive_quant.guardrails import should_fallback_due_to_instability
 from adaptive_quant.hardware import detect_host_hardware, host_aware_hardware_profiles
-from adaptive_quant.logging_utils import JsonlLogger, NullJsonlLogger, jsonl_integrity_chain_enabled
+from adaptive_quant.logging_utils import (
+    JsonlLogger,
+    NullJsonlLogger,
+    jsonl_integrity_chain_enabled,
+)
 from adaptive_quant.math_utils import variance
 from adaptive_quant.moe import ExpertBank
 from adaptive_quant.prompts import PromptLibrary
@@ -60,7 +64,9 @@ class AdaptiveQuantizationEnv:
                 rng=self._prompt_split_rng,
                 train_fraction=config.prompt_train_fraction,
             )
-        self.detected_hardware = detect_host_hardware() if config.detect_host_hardware else None
+        self.detected_hardware = (
+            detect_host_hardware() if config.detect_host_hardware else None
+        )
         self.hardware_profiles = host_aware_hardware_profiles(self.detected_hardware)
         self.backend = (backend_factory or build_backend)(config)
         if expert_bank is not None:
@@ -86,7 +92,9 @@ class AdaptiveQuantizationEnv:
         self._prompt_cache: dict[str, tuple] = {}
         if config.cache_prompt_features:
             for prompt in self.prompt_library.prompts:
-                self._prompt_cache[prompt.prompt_id] = self._build_prompt_context(prompt)
+                self._prompt_cache[prompt.prompt_id] = self._build_prompt_context(
+                    prompt
+                )
 
     def reset(
         self,
@@ -139,9 +147,11 @@ class AdaptiveQuantizationEnv:
             input_features=input_features,
             sensitivity=sensitivity,
             previous_action=previous,
-            moe_context=self.expert_bank.build_context(prompt, input_features, hardware_profile)
-            if self.expert_bank is not None
-            else None,
+            moe_context=(
+                self.expert_bank.build_context(prompt, input_features, hardware_profile)
+                if self.expert_bank is not None
+                else None
+            ),
         )
         return self.current_state
 
@@ -157,12 +167,16 @@ class AdaptiveQuantizationEnv:
         finalized = finalize_decision(decision, self.current_state, self.config)
         finalize_kernel_profile(finalized, self.config)
         primary_metrics = self.backend.evaluate(self.current_state, finalized)
-        primary_metrics = self._enrich_kernel_metrics(primary_metrics, finalized, episode_index)
+        primary_metrics = self._enrich_kernel_metrics(
+            primary_metrics, finalized, episode_index
+        )
         stability_penalty = self._stability_penalty(finalized, self.current_state)
 
         pre_fallback_metrics = dict(primary_metrics)
         pre_fallback_stability = float(stability_penalty)
-        pre_fallback_reward = self._compute_reward(pre_fallback_metrics, pre_fallback_stability)
+        pre_fallback_reward = self._compute_reward(
+            pre_fallback_metrics, pre_fallback_stability
+        )
 
         if should_fallback_due_to_instability(
             stability_penalty, threshold=self.config.instability_threshold
@@ -203,16 +217,22 @@ class AdaptiveQuantizationEnv:
             kernel_profile_name=str(primary_metrics.get("kernel_profile_name", "")),
             kernel_speedup=float(primary_metrics.get("kernel_speedup", 0.0)),
             kernel_latency_ms=float(primary_metrics.get("kernel_latency_ms", 0.0)),
-            kernel_benchmark_source=str(primary_metrics.get("kernel_benchmark_source", "")),
+            kernel_benchmark_source=str(
+                primary_metrics.get("kernel_benchmark_source", "")
+            ),
         )
-        result = EpisodeResult(state=self.current_state, decision=finalized, metrics=metrics)
+        result = EpisodeResult(
+            state=self.current_state, decision=finalized, metrics=metrics
+        )
         if log_episode:
             self._log_episode(result, episode_index)
         return result
 
     def _sequential_prompt_id(self, episode_index: int, phase: str) -> str:
         if self.config.prompt_split_enabled:
-            split_ids = self.train_prompt_ids if phase == "train" else self.eval_prompt_ids
+            split_ids = (
+                self.train_prompt_ids if phase == "train" else self.eval_prompt_ids
+            )
             allowed = split_ids or {p.prompt_id for p in self.prompt_library.prompts}
         else:
             allowed = {p.prompt_id for p in self.prompt_library.prompts}
@@ -258,7 +278,9 @@ class AdaptiveQuantizationEnv:
 
     def _build_prompt_context(self, prompt):
         input_features = extract_input_features(prompt)
-        sensitivity = estimate_layer_sensitivity(prompt, input_features, self.config.num_layers)
+        sensitivity = estimate_layer_sensitivity(
+            prompt, input_features, self.config.num_layers
+        )
         return input_features, sensitivity
 
     def _enrich_kernel_metrics(
@@ -280,11 +302,11 @@ class AdaptiveQuantizationEnv:
                     profile_id,
                     hidden_dim=self.config.kernel_hidden_dim,
                     batch_rows=self.config.kernel_batch_rows,
-                    hardware_compute_factor=float(
-                        self.current_state.hardware_profile.compute_factor
-                    )
-                    if self.current_state
-                    else 1.0,
+                    hardware_compute_factor=(
+                        float(self.current_state.hardware_profile.compute_factor)
+                        if self.current_state
+                        else 1.0
+                    ),
                     config=self.config,
                 )
             else:
@@ -305,13 +327,17 @@ class AdaptiveQuantizationEnv:
                 merged["throughput_tps"] = float(merged["throughput_tps"]) * speedup
             return merged
 
-    def _evaluate_kernel_metrics(self, decision: QuantizationDecision) -> dict[str, float | str]:
+    def _evaluate_kernel_metrics(
+        self, decision: QuantizationDecision
+    ) -> dict[str, float | str]:
         if self.current_state is None:
             return {}
         try:
             from seiso.rl_quant.kernel_integration import evaluate_kernel_for_decision
 
-            return evaluate_kernel_for_decision(decision, self.current_state, self.config)
+            return evaluate_kernel_for_decision(
+                decision, self.current_state, self.config
+            )
         except ImportError:
             from adaptive_quant.kernel_rl import kernel_metrics_for_profile
 
@@ -320,11 +346,15 @@ class AdaptiveQuantizationEnv:
                 profile_id,
                 hidden_dim=self.config.kernel_hidden_dim,
                 batch_rows=self.config.kernel_batch_rows,
-                hardware_compute_factor=float(self.current_state.hardware_profile.compute_factor),
+                hardware_compute_factor=float(
+                    self.current_state.hardware_profile.compute_factor
+                ),
                 config=self.config,
             )
 
-    def _compute_reward(self, metrics: BackendMetricDict, stability_penalty: float) -> float:
+    def _compute_reward(
+        self, metrics: BackendMetricDict, stability_penalty: float
+    ) -> float:
         reward = compute_weighted_reward(
             reward_weights=self.config.reward_weights,
             metrics=metrics,
@@ -334,14 +364,19 @@ class AdaptiveQuantizationEnv:
         )
         return apply_moe_reward_penalties(reward, metrics, self.config)
 
-    def _stability_penalty(self, decision: QuantizationDecision, state: EpisodeState) -> float:
+    def _stability_penalty(
+        self, decision: QuantizationDecision, state: EpisodeState
+    ) -> float:
         if self.config.stability_probe_count <= 1:
             return 0.0
         perplexities = []
         allowed = None
         if self.config.prompt_split_enabled:
             # Keep probes within the same split as the active prompt.
-            if self.eval_prompt_ids is not None and state.prompt.prompt_id in self.eval_prompt_ids:
+            if (
+                self.eval_prompt_ids is not None
+                and state.prompt.prompt_id in self.eval_prompt_ids
+            ):
                 allowed = self.eval_prompt_ids
             elif self.train_prompt_ids is not None:
                 allowed = self.train_prompt_ids
@@ -351,7 +386,10 @@ class AdaptiveQuantizationEnv:
             )
         else:
             probes = self.prompt_library.probes(
-                state.prompt, self.config.stability_probe_count, self.rng, allowed_ids=allowed
+                state.prompt,
+                self.config.stability_probe_count,
+                self.rng,
+                allowed_ids=allowed,
             )
         for probe in probes:
             probe_features, probe_sensitivity = self._get_prompt_context(probe)
@@ -361,7 +399,9 @@ class AdaptiveQuantizationEnv:
                 input_features=probe_features,
                 sensitivity=probe_sensitivity,
             )
-            probe_decision = finalize_decision(replace(decision), probe_state, self.config)
+            probe_decision = finalize_decision(
+                replace(decision), probe_state, self.config
+            )
             metrics = self.backend.evaluate(probe_state, probe_decision)
             perplexities.append(metrics["perplexity"])
         return variance(perplexities)

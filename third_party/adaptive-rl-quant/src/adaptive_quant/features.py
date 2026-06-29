@@ -112,8 +112,12 @@ def estimate_layer_sensitivity(
 
     layer_stats: list[float] = []
     for layer_index in range(num_layers):
-        phase = math.sin((layer_index + 1) * 0.8 + input_features.complexity_score * 2.2)
-        layer_bias = deterministic_float(f"{prompt.prompt_id}:{layer_index}", -0.10, 0.10)
+        phase = math.sin(
+            (layer_index + 1) * 0.8 + input_features.complexity_score * 2.2
+        )
+        layer_bias = deterministic_float(
+            f"{prompt.prompt_id}:{layer_index}", -0.10, 0.10
+        )
         layer_value = clamp(
             0.40
             + 0.25 * input_features.complexity_score

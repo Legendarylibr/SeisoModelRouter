@@ -1,2 +1,1 @@
 """Router CLI commands."""
-

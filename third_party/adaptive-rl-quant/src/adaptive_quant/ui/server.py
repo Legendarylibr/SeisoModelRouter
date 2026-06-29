@@ -11,7 +11,11 @@ from urllib.parse import urlparse
 
 from adaptive_quant.security_bypass import enforce_security_bypass_policy
 from adaptive_quant.ui.catalog import launcher_catalog
-from adaptive_quant.ui.commands import build_job_env, build_workflow_command, format_command
+from adaptive_quant.ui.commands import (
+    build_job_env,
+    build_workflow_command,
+    format_command,
+)
 from adaptive_quant.ui.jobs import JobManager, action_catalog, start_configured_workflow
 from adaptive_quant.ui.security import (
     audit_log,
@@ -26,7 +30,9 @@ from adaptive_quant.ui.status import dashboard_status
 _STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 
-def build_catalog_response(*, repo: Path, launcher_token: str | None = None) -> dict[str, Any]:
+def build_catalog_response(
+    *, repo: Path, launcher_token: str | None = None
+) -> dict[str, Any]:
     """JSON payload for GET /api/catalog (testable without a live HTTP server)."""
     status = dashboard_status(repo=repo)
     catalog = launcher_catalog(repo=repo, status=status)
@@ -90,7 +96,9 @@ class LauncherRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format: str, *args: Any) -> None:
         return
 
-    def _send_json(self, payload: dict[str, Any] | list[Any], *, status: int = 200) -> None:
+    def _send_json(
+        self, payload: dict[str, Any] | list[Any], *, status: int = 200
+    ) -> None:
         body = json.dumps(payload, indent=2).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -246,7 +254,9 @@ class LauncherRequestHandler(BaseHTTPRequestHandler):
                 raise ValueError("request body must be a JSON object")
             from adaptive_quant.ui.chat import build_models_response
 
-            self._send_json(build_models_response(repo=self.server.repo, body=body or {}))
+            self._send_json(
+                build_models_response(repo=self.server.repo, body=body or {})
+            )
         except ValueError as exc:
             self._send_json({"error": str(exc)}, status=400)
         except json.JSONDecodeError:

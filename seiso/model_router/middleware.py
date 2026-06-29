@@ -44,7 +44,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self._rpm = rpm
         self._burst = burst
-        self._buckets: dict[str, tuple[float, float]] = defaultdict(lambda: (0.0, float(burst)))
+        self._buckets: dict[str, tuple[float, float]] = defaultdict(
+            lambda: (0.0, float(burst))
+        )
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         if self._rpm <= 0:

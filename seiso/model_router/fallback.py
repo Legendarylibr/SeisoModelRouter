@@ -22,7 +22,9 @@ class FallbackChain:
         others.sort(key=lambda r: r.fallback_priority)
         return [primary, *others]
 
-    async def resolve_awake_route(self, primary: SpecialistRoute) -> tuple[SpecialistRoute, str]:
+    async def resolve_awake_route(
+        self, primary: SpecialistRoute
+    ) -> tuple[SpecialistRoute, str]:
         for route in self.ordered_fallbacks(primary):
             record = await self.lifecycle.wake_for_route(route)
             if record.state in (BackendState.AWAKE, BackendState.UNKNOWN):

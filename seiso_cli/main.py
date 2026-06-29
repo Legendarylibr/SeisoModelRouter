@@ -17,4 +17,3 @@ app.command("router")(router_serve)
 
 if __name__ == "__main__":
     app()
-

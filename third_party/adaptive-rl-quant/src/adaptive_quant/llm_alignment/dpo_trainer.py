@@ -15,7 +15,11 @@ from torch.utils.data import DataLoader
 
 from adaptive_quant.llm_alignment.config import DPOSettings
 from adaptive_quant.llm_alignment.data_collator import DPODataCollator
-from adaptive_quant.llm_alignment.dpo_loss import DPOMetrics, compute_dpo_loss, get_batch_logps
+from adaptive_quant.llm_alignment.dpo_loss import (
+    DPOMetrics,
+    compute_dpo_loss,
+    get_batch_logps,
+)
 from adaptive_quant.llm_alignment.model_loading import load_policy_and_reference
 from adaptive_quant.logging_utils import JsonlLogger, write_json
 
@@ -68,7 +72,9 @@ class DPOTrainer:
 
         if not getattr(policy_model, "hf_device_map", None):
             policy_model = policy_model.to(self.device)
-        if reference_model is not None and not getattr(reference_model, "hf_device_map", None):
+        if reference_model is not None and not getattr(
+            reference_model, "hf_device_map", None
+        ):
             reference_model = reference_model.to(self.device)
 
         self.policy_model = policy_model
@@ -145,7 +151,9 @@ class DPOTrainer:
                         labels,
                     )
             if self.reference_model is None:
-                raise RuntimeError("reference_model is required when not using adapter disable.")
+                raise RuntimeError(
+                    "reference_model is required when not using adapter disable."
+                )
             return self._forward_logps(
                 self.reference_model,
                 input_ids,
@@ -275,7 +283,9 @@ class DPOTrainer:
             collate_fn=self.collator,
         )
 
-        steps_per_epoch = math.ceil(len(dataloader) / self.settings.gradient_accumulation_steps)
+        steps_per_epoch = math.ceil(
+            len(dataloader) / self.settings.gradient_accumulation_steps
+        )
         total_steps = steps_per_epoch * self.settings.num_epochs
         warmup_steps = int(total_steps * self.settings.warmup_ratio)
         scheduler = torch.optim.lr_scheduler.LambdaLR(
@@ -315,7 +325,9 @@ class DPOTrainer:
 
         self._save_checkpoint()
         summary_path = (
-            Path(self.settings.output_dir) / self.settings.run_name / "dpo_training_summary.json"
+            Path(self.settings.output_dir)
+            / self.settings.run_name
+            / "dpo_training_summary.json"
         )
         write_json(
             summary_path,

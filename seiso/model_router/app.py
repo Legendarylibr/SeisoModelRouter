@@ -83,7 +83,9 @@ def create_router_app(settings: RouterSettings | None = None) -> FastAPI:
 
     lifecycle = BackendLifecycleManager(settings=settings, catalog=catalog)
     fallback = FallbackChain(
-        catalog=catalog, lifecycle=lifecycle, default_route_id=settings.fallback_route_id
+        catalog=catalog,
+        lifecycle=lifecycle,
+        default_route_id=settings.fallback_route_id,
     )
 
     litellm_gateway = None
@@ -114,7 +116,9 @@ def create_router_app(settings: RouterSettings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         await lifecycle.start()
-        state["http"] = httpx.AsyncClient(timeout=httpx.Timeout(settings.request_timeout_sec))
+        state["http"] = httpx.AsyncClient(
+            timeout=httpx.Timeout(settings.request_timeout_sec)
+        )
         yield
         await lifecycle.stop()
         client = state.get("http")
@@ -133,9 +137,9 @@ def create_router_app(settings: RouterSettings | None = None) -> FastAPI:
             "vllm_sleep_mode": settings.vllm_sleep_mode,
             "nemotron_enabled": settings.nemotron_orchestrator_enabled(),
             "litellm_enabled": settings.litellm_gateway_enabled(),
-            "orchestrator_model": settings.orchestrator_model
-            if settings.orchestrator_url
-            else None,
+            "orchestrator_model": (
+                settings.orchestrator_model if settings.orchestrator_url else None
+            ),
         }
 
     @app.get("/ready")
@@ -192,10 +196,16 @@ def create_router_app(settings: RouterSettings | None = None) -> FastAPI:
         path = "/v1/chat/completions"
         start = time.perf_counter()
         try:
-            resp = await client.post(f"{target_url}{path}", json=route_payload, headers=headers)
+            resp = await client.post(
+                f"{target_url}{path}", json=route_payload, headers=headers
+            )
             latency_ms = (time.perf_counter() - start) * 1000.0
             if resp.status_code >= 400:
-                return {"error": resp.text, "status": resp.status_code}, latency_ms, False
+                return (
+                    {"error": resp.text, "status": resp.status_code},
+                    latency_ms,
+                    False,
+                )
             return resp.json(), latency_ms, True
         except Exception as exc:
             latency_ms = (time.perf_counter() - start) * 1000.0
@@ -245,7 +255,9 @@ def create_router_app(settings: RouterSettings | None = None) -> FastAPI:
                     "tool_calls": selection.raw_tool_calls,
                 }
             except Exception as exc:
-                logger.warning("nemotron orchestrator failed, falling back to heuristic: %s", exc)
+                logger.warning(
+                    "nemotron orchestrator failed, falling back to heuristic: %s", exc
+                )
                 primary = catalog.by_id(settings.fallback_route_id)
                 route_reason = f"nemotron_error={exc}"
                 orchestrator_meta = {"orchestrator_error": str(exc)}
@@ -269,7 +281,9 @@ def create_router_app(settings: RouterSettings | None = None) -> FastAPI:
         if settings.litellm_gateway_enabled():
             gateway = state["litellm"]
             if gateway is None:
-                raise HTTPException(status_code=503, detail="LiteLLM gateway not initialized")
+                raise HTTPException(
+                    status_code=503, detail="LiteLLM gateway not initialized"
+                )
             if body.stream:
                 return await _stream_litellm_response(
                     gateway,
@@ -324,7 +338,9 @@ def create_router_app(settings: RouterSettings | None = None) -> FastAPI:
 
         response_text = ""
         if isinstance(data, dict):
-            response_text = data.get("choices", [{}])[0].get("message", {}).get("content", "") or ""
+            response_text = (
+                data.get("choices", [{}])[0].get("message", {}).get("content", "") or ""
+            )
 
         reward = _compute_reward(
             latency_ms,
@@ -350,7 +366,9 @@ def create_router_app(settings: RouterSettings | None = None) -> FastAPI:
                 "reward": reward,
                 "reasoning": route_reason,
                 "routing_mode": settings.routing_mode,
-                "execution": "litellm" if settings.litellm_gateway_enabled() else "httpx",
+                "execution": (
+                    "litellm" if settings.litellm_gateway_enabled() else "httpx"
+                ),
                 **orchestrator_meta,
             }
         return data
@@ -380,7 +398,9 @@ def create_router_app(settings: RouterSettings | None = None) -> FastAPI:
                     temperature=temperature,
                 ):
                     text = (
-                        chunk if isinstance(chunk, str) else chunk.decode("utf-8", errors="ignore")
+                        chunk
+                        if isinstance(chunk, str)
+                        else chunk.decode("utf-8", errors="ignore")
                     )
                     for line in text.split("\n"):
                         if not line.startswith("data:"):

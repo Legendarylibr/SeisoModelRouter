@@ -5,7 +5,12 @@ from typing import Any, TypeVar
 
 from adaptive_quant.kernel_rl import kernel_feedback_scalar
 from adaptive_quant.math_utils import mean
-from adaptive_quant.types import EpisodeResult, EpisodeState, HardwareType, QuantizationDecision
+from adaptive_quant.types import (
+    EpisodeResult,
+    EpisodeState,
+    HardwareType,
+    QuantizationDecision,
+)
 
 StateT = TypeVar("StateT")
 
@@ -57,7 +62,9 @@ def collect_episode_results(
     episode_offset: int = 0,
     hardware: HardwareType | None = None,
     phase: str = "train",
-    prepare_decision: Callable[[QuantizationDecision, StateT], QuantizationDecision] | None = None,
+    prepare_decision: (
+        Callable[[QuantizationDecision, StateT], QuantizationDecision] | None
+    ) = None,
     on_episode: Callable[[StateT, EpisodeResult], None] | None = None,
 ) -> list[EpisodeResult]:
     results: list[EpisodeResult] = []
@@ -90,15 +97,17 @@ def run_env_episode_rollout(
     hardware: HardwareType | None = None,
     phase: str = "eval",
     initial_previous_action: list[float] | None = None,
-    prepare_decision: Callable[[QuantizationDecision, EpisodeState], QuantizationDecision]
-    | None = None,
+    prepare_decision: (
+        Callable[[QuantizationDecision, EpisodeState], QuantizationDecision] | None
+    ) = None,
     on_episode: Callable[[EpisodeState, EpisodeResult], None] | None = None,
     log_episode: bool = True,
 ) -> list[EpisodeResult]:
     try:
         return collect_episode_results(
             episodes,
-            initial_previous_action=initial_previous_action or zero_previous_action(env.config),
+            initial_previous_action=initial_previous_action
+            or zero_previous_action(env.config),
             reset=env.reset,
             act=act,
             evaluate_current=lambda decision, episode_index: env.evaluate_current(

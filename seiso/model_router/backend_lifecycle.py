@@ -57,7 +57,9 @@ class BackendLifecycleManager:
             )
 
     async def start(self) -> None:
-        self._client = httpx.AsyncClient(timeout=httpx.Timeout(self.settings.request_timeout_sec))
+        self._client = httpx.AsyncClient(
+            timeout=httpx.Timeout(self.settings.request_timeout_sec)
+        )
         self._poll_task = asyncio.create_task(self._idle_poll_loop())
         await self._refresh_all_states()
 
@@ -106,14 +108,20 @@ class BackendLifecycleManager:
                     )
                 elif resp.status_code == 200:
                     data = resp.json()
-                    sleeping = bool(data.get("is_sleeping", data.get("sleeping", False)))
-                    record.state = BackendState.SLEEPING if sleeping else BackendState.AWAKE
+                    sleeping = bool(
+                        data.get("is_sleeping", data.get("sleeping", False))
+                    )
+                    record.state = (
+                        BackendState.SLEEPING if sleeping else BackendState.AWAKE
+                    )
                 else:
                     record.state = BackendState.UNREACHABLE
             else:
                 health = await client.get(f"{url}/health", timeout=5.0)
                 record.state = (
-                    BackendState.AWAKE if health.status_code == 200 else BackendState.UNREACHABLE
+                    BackendState.AWAKE
+                    if health.status_code == 200
+                    else BackendState.UNREACHABLE
                 )
             record.error = ""
         except Exception as exc:
@@ -148,7 +156,9 @@ class BackendLifecycleManager:
                     await self._wait_for_health(route, record)
             return record
 
-    async def _wait_for_health(self, route: SpecialistRoute, record: BackendRecord) -> None:
+    async def _wait_for_health(
+        self, route: SpecialistRoute, record: BackendRecord
+    ) -> None:
         client = self._client
         if client is None:
             return
@@ -184,7 +194,9 @@ class BackendLifecycleManager:
                 )
             record.wake_latency_ms = (time.monotonic() - start) * 1000.0
             record.state = (
-                BackendState.AWAKE if resp.status_code < 400 else BackendState.UNREACHABLE
+                BackendState.AWAKE
+                if resp.status_code < 400
+                else BackendState.UNREACHABLE
             )
             record.error = "" if resp.status_code < 400 else resp.text[:200]
         except Exception as exc:
@@ -210,7 +222,9 @@ class BackendLifecycleManager:
                     f"{route.backend_url}/sleep?level={level}",
                     timeout=60.0,
                 )
-            record.state = BackendState.SLEEPING if resp.status_code < 400 else record.state
+            record.state = (
+                BackendState.SLEEPING if resp.status_code < 400 else record.state
+            )
             record.last_sleep_attempt = time.monotonic()
         except Exception as exc:
             record.error = str(exc)

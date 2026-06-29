@@ -10,11 +10,15 @@ class Backend(Protocol):
     """Evaluation backend interface (simulator or llama.cpp)."""
 
     @abstractmethod
-    def evaluate(self, state: EpisodeState, decision: QuantizationDecision) -> BackendMetricDict:
+    def evaluate(
+        self, state: EpisodeState, decision: QuantizationDecision
+    ) -> BackendMetricDict:
         raise NotImplementedError
 
 
-def per_token_latency_fields(state: EpisodeState, latency_ms: float) -> dict[str, float]:
+def per_token_latency_fields(
+    state: EpisodeState, latency_ms: float
+) -> dict[str, float]:
     """Normalize wall-clock latency by prompt length for logging and optional reward."""
     tokens = float(max(1, state.input_features.prompt_length))
     return {

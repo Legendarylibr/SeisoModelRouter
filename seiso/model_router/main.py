@@ -18,7 +18,9 @@ from seiso.model_router.middleware import (
 def build_app(settings: RouterSettings | None = None):
     if settings is None:
         config_path = os.environ.get("SEISO_ROUTER_CONFIG_PATH")
-        settings = RouterSettings.load(Path(config_path)) if config_path else RouterSettings()
+        settings = (
+            RouterSettings.load(Path(config_path)) if config_path else RouterSettings()
+        )
 
     resolved = resolve_paths(settings)
     app = create_router_app(resolved)

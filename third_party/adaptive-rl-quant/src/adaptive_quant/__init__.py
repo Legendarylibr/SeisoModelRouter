@@ -29,19 +29,31 @@ _EAGER_EXPORTS = (
 
 _LAZY: dict[str, tuple[str, str]] = {
     "BenchmarkSuite": ("adaptive_quant.benchmark", "BenchmarkSuite"),
-    "AdaptiveQuantizationEnv": ("adaptive_quant.environment", "AdaptiveQuantizationEnv"),
+    "AdaptiveQuantizationEnv": (
+        "adaptive_quant.environment",
+        "AdaptiveQuantizationEnv",
+    ),
     "OnlineLearningLoop": ("adaptive_quant.online_learning", "OnlineLearningLoop"),
     "Trainer": ("adaptive_quant.trainer", "Trainer"),
-    "UniversalQuantizationPolicy": ("adaptive_quant.policy", "UniversalQuantizationPolicy"),
+    "UniversalQuantizationPolicy": (
+        "adaptive_quant.policy",
+        "UniversalQuantizationPolicy",
+    ),
     "build_request_stream": ("adaptive_quant.online_learning", "build_request_stream"),
     "build_trainer": ("adaptive_quant.trainer", "build_trainer"),
     "detect_host_hardware": ("adaptive_quant.hardware", "detect_host_hardware"),
     "load_config": ("adaptive_quant.easy_config", "load_config"),
     "quick_config": ("adaptive_quant.easy_config", "quick_config"),
-    "recommend_quantization": ("adaptive_quant.recommendation", "recommend_quantization"),
+    "recommend_quantization": (
+        "adaptive_quant.recommendation",
+        "recommend_quantization",
+    ),
     "run_online_pipeline": ("adaptive_quant.online_pipeline", "run_online_pipeline"),
     "ResearchPipeline": ("adaptive_quant.research_pipeline", "ResearchPipeline"),
-    "run_pipeline_entrypoint": ("adaptive_quant.research_pipeline", "run_pipeline_entrypoint"),
+    "run_pipeline_entrypoint": (
+        "adaptive_quant.research_pipeline",
+        "run_pipeline_entrypoint",
+    ),
 }
 
 __all__ = sorted((*_EAGER_EXPORTS, *_LAZY))

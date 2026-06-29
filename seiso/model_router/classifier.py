@@ -52,7 +52,9 @@ def _last_user_text(messages: list[dict]) -> str:
     return ""
 
 
-def detect_domain(text: str, known_domains: tuple[str, ...] = ()) -> tuple[str, float, str]:
+def detect_domain(
+    text: str, known_domains: tuple[str, ...] = ()
+) -> tuple[str, float, str]:
     """Rule-based domain classifier with confidence score."""
     text = (text or "").strip()
     if not text:

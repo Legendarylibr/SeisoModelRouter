@@ -38,13 +38,19 @@ def build_litellm_params(
     if route.backend_type == "vllm":
         if llamaswap_url:
             params["api_base"] = _openai_api_base(llamaswap_url)
-            params["model"] = route.litellm_model or f"hosted_vllm/{route.llamaswap_model}"
+            params["model"] = (
+                route.litellm_model or f"hosted_vllm/{route.llamaswap_model}"
+            )
         else:
             params["api_base"] = _openai_api_base(route.backend_url)
-            params["model"] = route.litellm_model or f"hosted_vllm/{route.openai_model_name}"
+            params["model"] = (
+                route.litellm_model or f"hosted_vllm/{route.openai_model_name}"
+            )
     elif route.backend_type == "cloud_vllm":
         params["api_base"] = _openai_api_base(route.backend_url)
-        params["model"] = route.litellm_model or f"hosted_vllm/{route.openai_model_name}"
+        params["model"] = (
+            route.litellm_model or f"hosted_vllm/{route.openai_model_name}"
+        )
     elif route.backend_type == "cloud_api":
         params["model"] = route.litellm_model
         if route.backend_url:
@@ -70,11 +76,15 @@ def build_litellm_model_list(
         entries.append(
             {
                 "model_name": route.llamaswap_model,
-                "litellm_params": build_litellm_params(route, llamaswap_url=llamaswap_url),
+                "litellm_params": build_litellm_params(
+                    route, llamaswap_url=llamaswap_url
+                ),
             }
         )
     if not entries:
-        raise ValueError("LiteLLM gateway requires at least one LiteLLM-routable specialist")
+        raise ValueError(
+            "LiteLLM gateway requires at least one LiteLLM-routable specialist"
+        )
     return entries
 
 

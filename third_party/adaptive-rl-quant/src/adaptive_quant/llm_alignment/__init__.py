@@ -14,7 +14,10 @@ from adaptive_quant.llm_alignment.config import DPOSettings  # noqa: F401
 _EAGER_EXPORTS = ("DPOSettings",)
 
 _LAZY: dict[str, tuple[str, str]] = {
-    "DPODataCollator": ("adaptive_quant.llm_alignment.data_collator", "DPODataCollator"),
+    "DPODataCollator": (
+        "adaptive_quant.llm_alignment.data_collator",
+        "DPODataCollator",
+    ),
     "DPOMetrics": ("adaptive_quant.llm_alignment.dpo_loss", "DPOMetrics"),
     "DPOTrainer": ("adaptive_quant.llm_alignment.dpo_trainer", "DPOTrainer"),
     "clone_reference_from_policy": (
