@@ -37,10 +37,14 @@ def make_vendor_bootstrap(
             missing_hint=hint,
         )
 
-    return VendorBootstrap(root=root, ensure_importable=ensure_importable, require=require)
+    return VendorBootstrap(
+        root=root, ensure_importable=ensure_importable, require=require
+    )
 
 
-def ensure_vendor_importable(vendor_root: Path, *, src_subdir: str | None = "src") -> Path:
+def ensure_vendor_importable(
+    vendor_root: Path, *, src_subdir: str | None = "src"
+) -> Path:
     """Insert the vendor import root on sys.path if needed."""
     import_root = vendor_root / src_subdir if src_subdir else vendor_root
     root = str(import_root.resolve())
@@ -61,6 +65,10 @@ def require_vendor_package(
     try:
         __import__(package_name)
     except ImportError as exc:
-        hint = missing_hint or f"Expected {import_root / package_name.replace('.', '/')}"
-        raise RuntimeError(f"Vendored package {package_name!r} missing. {hint}") from exc
+        hint = (
+            missing_hint or f"Expected {import_root / package_name.replace('.', '/')}"
+        )
+        raise RuntimeError(
+            f"Vendored package {package_name!r} missing. {hint}"
+        ) from exc
     return import_root

@@ -12,7 +12,10 @@ from adaptive_quant.pipeline.output_summary import (
 from adaptive_quant.pipeline.report_markdown import fmt_report_num, maybe_report_link
 from adaptive_quant.pipeline.research_contract import build_research_contract
 from adaptive_quant.pipeline.vcs import git_commit_hash
-from adaptive_quant.research_pipeline import maybe_save_final_checkpoint, write_training_history
+from adaptive_quant.research_pipeline import (
+    maybe_save_final_checkpoint,
+    write_training_history,
+)
 from adaptive_quant.security_audit import build_security_audit_record
 from adaptive_quant.security_bypass import enforce_security_bypass_policy
 from adaptive_quant.trainer import build_trainer
@@ -42,13 +45,17 @@ def run_online_pipeline(
     try:
         bootstrap_summary = trainer.train()
         loop = OnlineLearningLoop(config, trainer=trainer)
-        online_summary = loop.run_stream(build_request_stream(config, request_count=request_count))
+        online_summary = loop.run_stream(
+            build_request_stream(config, request_count=request_count)
+        )
         eval_summary = trainer.evaluate()
 
         analysis_root = f"{config.analysis_dir}/{config.run_name}"
         from analysis.analyzers import analyze_online
 
-        online_analysis = analyze_online(config.online_telemetry_path(), f"{analysis_root}/online")
+        online_analysis = analyze_online(
+            config.online_telemetry_path(), f"{analysis_root}/online"
+        )
         history_path = write_training_history(config, trainer)
         checkpoint_path = maybe_save_final_checkpoint(config, trainer)
         report_path = _write_online_report(
@@ -84,7 +91,13 @@ def run_online_pipeline(
             config,
             git_commit=git_commit,
             pipeline="online_adaptation",
-            phases=["bootstrap_train", "online_stream", "evaluate", "analysis", "report"],
+            phases=[
+                "bootstrap_train",
+                "online_stream",
+                "evaluate",
+                "analysis",
+                "report",
+            ],
         ),
         "security_audit": build_security_audit_record(
             config,
@@ -107,7 +120,9 @@ def run_online_pipeline(
     }
     from adaptive_quant.pipeline.output_summary import build_research_artifact_index
 
-    summary["artifact_index"] = build_research_artifact_index(config, summary["artifacts"])
+    summary["artifact_index"] = build_research_artifact_index(
+        config, summary["artifacts"]
+    )
     write_json(summary_path, summary)
     return summary
 
@@ -153,8 +168,14 @@ def _write_online_report(
 
     def _analysis_links() -> list[str]:
         candidates = [
-            ("online reward by hardware", analysis_root / "online_reward_by_hardware.svg"),
-            ("online complexity vs reward", analysis_root / "online_complexity_vs_reward.svg"),
+            (
+                "online reward by hardware",
+                analysis_root / "online_reward_by_hardware.svg",
+            ),
+            (
+                "online complexity vs reward",
+                analysis_root / "online_complexity_vs_reward.svg",
+            ),
         ]
         lines: list[str] = []
         for label, abs_path in candidates:
@@ -208,10 +229,18 @@ def _write_online_report(
         f"- checkpoint: `{checkpoint_path or 'not written'}`",
         "",
         "## Bootstrap",
-        *(md_table(["metric", "value"], bootstrap_rows) if bootstrap_rows else ["_not written_"]),
+        *(
+            md_table(["metric", "value"], bootstrap_rows)
+            if bootstrap_rows
+            else ["_not written_"]
+        ),
         "",
         "## Online",
-        *(md_table(["metric", "value"], online_rows) if online_rows else ["_not written_"]),
+        *(
+            md_table(["metric", "value"], online_rows)
+            if online_rows
+            else ["_not written_"]
+        ),
         "",
         "## Evaluation",
         *(md_table(["metric", "value"], eval_rows) if eval_rows else ["_not written_"]),

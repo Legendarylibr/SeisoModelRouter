@@ -33,9 +33,13 @@ def _start_router_compose_stack(*, vllm: bool, detach: bool) -> None:
     if detach:
         cmd.append("-d")
     stack_label = "vLLM + LiteLLM" if vllm else "llama.cpp"
-    console.print(f"[bold green]Seiso Router stack[/] ({stack_label}) via {compose_path}")
+    console.print(
+        f"[bold green]Seiso Router stack[/] ({stack_label}) via {compose_path}"
+    )
     if vllm:
-        console.print("Router: http://127.0.0.1:8780 · Enable Forge: SEISO_MODEL_ROUTER_ENABLED=true")
+        console.print(
+            "Router: http://127.0.0.1:8780 · Enable Forge: SEISO_MODEL_ROUTER_ENABLED=true"
+        )
     subprocess.run(cmd, cwd=router_dir, check=True, env=os.environ.copy())
 
 
@@ -81,7 +85,9 @@ def router_serve(
     config_path = Path(config)
     if vllm:
         config_path = Path("deploy/model-router/config/router.local.vllm.yaml")
-    settings = resolve_paths(RouterSettings.load(config_path), base=_resolve_repo_root())
+    settings = resolve_paths(
+        RouterSettings.load(config_path), base=_resolve_repo_root()
+    )
     bind_host = host or settings.host
     bind_port = port or settings.port
     backend = settings.inference_backend

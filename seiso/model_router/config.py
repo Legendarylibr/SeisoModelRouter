@@ -19,7 +19,9 @@ class RouterSettings(BaseSettings):
     inference_backend: str = "llamacpp"  # llamacpp | vllm (local stack selector)
     vllm_sleep_mode: bool = False  # required for Nemotron orchestrator routing
 
-    config_path: Path = Field(default=Path("deploy/model-router/config/router.local.yaml"))
+    config_path: Path = Field(
+        default=Path("deploy/model-router/config/router.local.yaml")
+    )
 
     llamaswap_url: str = ""
     specialists_path: Path = Field(
@@ -74,7 +76,8 @@ class RouterSettings(BaseSettings):
             issues.append("orchestrator_url must be set")
         if issues:
             raise ValueError(
-                "routing_mode=nemotron is only supported with vLLM sleep mode: " + "; ".join(issues)
+                "routing_mode=nemotron is only supported with vLLM sleep mode: "
+                + "; ".join(issues)
             )
         return self
 

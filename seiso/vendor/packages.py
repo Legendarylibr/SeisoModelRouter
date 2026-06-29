@@ -9,4 +9,3 @@ ADAPTIVE_QUANT: VendorBootstrap = make_vendor_bootstrap(
     "adaptive_quant",
     missing_hint="Expected third_party/adaptive-rl-quant/src/adaptive_quant",
 )
-

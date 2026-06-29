@@ -78,7 +78,9 @@ class SweepTrialResult:
 def aggregate_objective_values(
     values: list[float | None],
 ) -> tuple[float | None, float | None, int]:
-    finite = [float(value) for value in values if value is not None and math.isfinite(value)]
+    finite = [
+        float(value) for value in values if value is not None and math.isfinite(value)
+    ]
     if not finite:
         return None, None, 0
     if len(finite) == 1:
@@ -107,7 +109,9 @@ def format_sweep_plan_preview(
     objective: str,
     direction: str,
 ) -> str:
-    seed_label = ", ".join(str(seed) for seed in seeds) if seeds else "(single run per setting)"
+    seed_label = (
+        ", ".join(str(seed) for seed in seeds) if seeds else "(single run per setting)"
+    )
     runs_per_plan = len(seeds) if seeds else 1
     lines = [
         f"Sweep plan: {len(plans)} trial setting(s) × {runs_per_plan} run(s) = "
@@ -127,7 +131,9 @@ def format_sweep_plan_preview(
         )
         if seeds:
             for seed in seeds:
-                lines.append(f"          → {trial_run_name(base_run_name, plan, seed=seed)}")
+                lines.append(
+                    f"          → {trial_run_name(base_run_name, plan, seed=seed)}"
+                )
         else:
             lines.append(f"          → {trial_run_name(base_run_name, plan)}")
     return "\n".join(lines)
@@ -137,7 +143,9 @@ def parse_value_list(raw: str) -> list[Any]:
     text = raw.strip()
     if not text:
         return []
-    return [parse_override_value(part.strip()) for part in text.split(",") if part.strip()]
+    return [
+        parse_override_value(part.strip()) for part in text.split(",") if part.strip()
+    ]
 
 
 def parse_vary_argument(raw: str) -> tuple[str, tuple[Any, ...]]:
@@ -251,9 +259,13 @@ def _parse_sweep_file(path: Path) -> dict[str, Any]:
 
         data = toml_loads(text)
     else:
-        raise ValueError(f"Unsupported sweep file extension {suffix!r} (use .json or .toml)")
+        raise ValueError(
+            f"Unsupported sweep file extension {suffix!r} (use .json or .toml)"
+        )
     if not isinstance(data, dict):
-        raise TypeError(f"Sweep file root must be an object/dict, got {type(data).__name__}")
+        raise TypeError(
+            f"Sweep file root must be an object/dict, got {type(data).__name__}"
+        )
     return dict(data)
 
 
@@ -330,7 +342,9 @@ def load_sweep_file(path: str | Path) -> tuple[SweepSpec, FrameworkConfig | None
     if base_config_path:
         base_config = FrameworkConfig.from_file(base_config_path)
     if payload:
-        base_config = FrameworkConfig.from_mapping(payload, base=base_config, strict=True)
+        base_config = FrameworkConfig.from_mapping(
+            payload, base=base_config, strict=True
+        )
 
     spec = SweepSpec(
         objective=objective,

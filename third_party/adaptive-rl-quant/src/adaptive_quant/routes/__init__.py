@@ -7,7 +7,12 @@ lightweight per-task online router).
 
 from __future__ import annotations
 
-from adaptive_quant.model_routes import ModelRoute, QuantSpec, RouteCatalog, default_route_catalog
+from adaptive_quant.model_routes import (
+    ModelRoute,
+    QuantSpec,
+    RouteCatalog,
+    default_route_catalog,
+)
 from adaptive_quant.route_pipeline import (
     RouteTrainingSummary,
     build_route_decision,

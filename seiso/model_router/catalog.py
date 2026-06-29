@@ -46,12 +46,16 @@ class SpecialistRoute:
         if normalized not in _ALLOWED_BACKENDS:
             raise ValueError(f"Unknown backend_type: {self.backend_type!r}")
         self.backend_type = normalized
-        if self.backend_type in {_BACKEND_VLLM, _BACKEND_LLAMACPP, _BACKEND_CLOUD_VLLM} and not (
-            self.backend_url.strip()
-        ):
+        if self.backend_type in {
+            _BACKEND_VLLM,
+            _BACKEND_LLAMACPP,
+            _BACKEND_CLOUD_VLLM,
+        } and not (self.backend_url.strip()):
             raise ValueError(f"route {self.route_id!r} requires backend_url")
         if self.backend_type == _BACKEND_CLOUD_API and not self.litellm_model.strip():
-            raise ValueError(f"route {self.route_id!r} requires litellm_model for cloud_api")
+            raise ValueError(
+                f"route {self.route_id!r} requires litellm_model for cloud_api"
+            )
 
     @property
     def is_vllm(self) -> bool:
@@ -68,7 +72,11 @@ class SpecialistRoute:
 
     @property
     def uses_litellm(self) -> bool:
-        return self.backend_type in {_BACKEND_VLLM, _BACKEND_CLOUD_VLLM, _BACKEND_CLOUD_API}
+        return self.backend_type in {
+            _BACKEND_VLLM,
+            _BACKEND_CLOUD_VLLM,
+            _BACKEND_CLOUD_API,
+        }
 
     @property
     def vllm_url(self) -> str:

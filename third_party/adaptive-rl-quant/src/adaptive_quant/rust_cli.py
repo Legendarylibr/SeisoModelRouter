@@ -76,7 +76,9 @@ def _payload_for_eval(
     config: FrameworkConfig,
 ) -> dict[str, Any]:
     hw = state.hardware_profile
-    calibration = config.sim_calibration if isinstance(config.sim_calibration, dict) else {}
+    calibration = (
+        config.sim_calibration if isinstance(config.sim_calibration, dict) else {}
+    )
     return {
         "hardware": {
             "hardware_type": hw.hardware_type.value,
@@ -121,7 +123,9 @@ def _finalize_rust_metrics(
     if "tokens_processed" not in metrics or "latency_ms_per_token" not in metrics:
         from adaptive_quant.backends.protocol import per_token_latency_fields
 
-        metrics.update(per_token_latency_fields(state, float(metrics.get("latency_ms", 0.0))))
+        metrics.update(
+            per_token_latency_fields(state, float(metrics.get("latency_ms", 0.0)))
+        )
     return metrics
 
 
@@ -136,7 +140,9 @@ def run_rust_sim_eval(
     cli = binary or resolve_rust_cli_binary(config)
     if not cli:
         raise RustCliError(f"Rust CLI binary not found. {_BUILD_HINT}")
-    payload = json.dumps(_payload_for_eval(state, decision, config), separators=(",", ":"))
+    payload = json.dumps(
+        _payload_for_eval(state, decision, config), separators=(",", ":")
+    )
     try:
         completed = subprocess.run(
             [cli, "sim-eval"],

@@ -100,7 +100,9 @@ async def test_litellm_gateway_chat_completion():
     litellm_mod = types.ModuleType("litellm")
     litellm_mod.Router = MagicMock(return_value=mock_router)
     with patch.dict(sys.modules, {"litellm": litellm_mod}):
-        gateway = LitellmGateway(_local_catalog(), llamaswap_url="http://llama-swap:8080")
+        gateway = LitellmGateway(
+            _local_catalog(), llamaswap_url="http://llama-swap:8080"
+        )
         route = _local_catalog().by_id("code")
         out = await gateway.chat_completion(
             route,

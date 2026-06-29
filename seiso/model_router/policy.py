@@ -78,7 +78,9 @@ class SpecialistRouteBandit:
     warmup_pulls: int = 3
     seed: int = 13
     _global: dict[str, _ArmStats] = field(default_factory=dict, init=False, repr=False)
-    _buckets: dict[str, dict[str, _ArmStats]] = field(default_factory=dict, init=False, repr=False)
+    _buckets: dict[str, dict[str, _ArmStats]] = field(
+        default_factory=dict, init=False, repr=False
+    )
     _rng: random.Random = field(init=False, repr=False)
     _total_pulls: int = field(default=0, init=False, repr=False)
 
@@ -87,7 +89,9 @@ class SpecialistRouteBandit:
         for route in self.catalog:
             self._global.setdefault(route.route_id, _ArmStats())
 
-    def select(self, context: RouteContext, *, deterministic: bool = False) -> SpecialistSelection:
+    def select(
+        self, context: RouteContext, *, deterministic: bool = False
+    ) -> SpecialistSelection:
         feasible = [r for r in self.catalog if r.matches_hardware(context.hardware)]
         if not feasible:
             feasible = list(self.catalog)
@@ -189,7 +193,8 @@ class SpecialistRouteBandit:
         self._rng = random.Random(self.seed)
         self._total_pulls = int(state.get("total_pulls", 0))
         self._global = {
-            rid: _ArmStats.from_dict(stats) for rid, stats in (state.get("global") or {}).items()
+            rid: _ArmStats.from_dict(stats)
+            for rid, stats in (state.get("global") or {}).items()
         }
         self._buckets = {
             bk: {rid: _ArmStats.from_dict(stats) for rid, stats in arms.items()}
@@ -198,7 +203,9 @@ class SpecialistRouteBandit:
 
     def save(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(self.state_dict(), indent=2) + "\n", encoding="utf-8")
+        path.write_text(
+            json.dumps(self.state_dict(), indent=2) + "\n", encoding="utf-8"
+        )
 
     def load(self, path: Path) -> None:
         if path.is_file():

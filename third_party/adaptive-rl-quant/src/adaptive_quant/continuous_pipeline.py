@@ -9,7 +9,10 @@ from adaptive_quant.continuous_learning import ContinuousLearningLoop
 from adaptive_quant.logging_utils import md_table, write_json, write_text_file
 from adaptive_quant.pipeline.research_contract import build_research_contract
 from adaptive_quant.pipeline.vcs import git_commit_hash
-from adaptive_quant.research_pipeline import maybe_save_final_checkpoint, write_training_history
+from adaptive_quant.research_pipeline import (
+    maybe_save_final_checkpoint,
+    write_training_history,
+)
 from adaptive_quant.security_audit import build_security_audit_record
 from adaptive_quant.security_bypass import enforce_security_bypass_policy
 from adaptive_quant.trainer import build_trainer
@@ -22,7 +25,9 @@ def run_continuous_pipeline(
     cli_startup_overrides: dict[str, object] | None = None,
 ) -> dict[str, object]:
     if not config.continuous_learning_enabled:
-        raise ValueError("continuous_learning_enabled must be true for the continuous pipeline")
+        raise ValueError(
+            "continuous_learning_enabled must be true for the continuous pipeline"
+        )
 
     summary_path = config.summary_path()
     trainer = build_trainer(config)
@@ -92,7 +97,9 @@ def run_continuous_pipeline(
     }
     from adaptive_quant.pipeline.output_summary import build_research_artifact_index
 
-    summary["artifact_index"] = build_research_artifact_index(config, summary["artifacts"])
+    summary["artifact_index"] = build_research_artifact_index(
+        config, summary["artifacts"]
+    )
     write_json(summary_path, summary)
     return summary
 
@@ -168,7 +175,11 @@ def _write_continuous_report(
         f"- checkpoint: `{checkpoint_path or 'not written'}`",
         "",
         "## Continuous stream",
-        *(md_table(["metric", "value"], continuous_rows) if continuous_rows else ["_not written_"]),
+        *(
+            md_table(["metric", "value"], continuous_rows)
+            if continuous_rows
+            else ["_not written_"]
+        ),
         "",
         "## Evaluation",
         *(md_table(["metric", "value"], eval_rows) if eval_rows else ["_not written_"]),

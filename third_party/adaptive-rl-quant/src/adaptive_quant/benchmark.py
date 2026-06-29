@@ -7,7 +7,10 @@ from adaptive_quant.configuration import FrameworkConfig
 from adaptive_quant.environment import AdaptiveQuantizationEnv
 from adaptive_quant.features import COMPLEXITY_BASELINE_THRESHOLDS, complexity_bucket
 from adaptive_quant.logging_utils import write_json
-from adaptive_quant.quantization import finalize_decision, nearest_allowed_discrete_bit_width
+from adaptive_quant.quantization import (
+    finalize_decision,
+    nearest_allowed_discrete_bit_width,
+)
 from adaptive_quant.trainer import build_trainer
 from adaptive_quant.trainer_utils import (
     feedback_vector,
@@ -32,9 +35,14 @@ class BenchmarkSuite:
         }
         if self.config.moe_enabled:
             results["dense_vs_moe"] = self._dense_vs_moe()
-            results["moe_packed_vs_single_variant"] = self._moe_packed_vs_single_variant()
+            results["moe_packed_vs_single_variant"] = (
+                self._moe_packed_vs_single_variant()
+            )
             results["moe_static_vs_rl"] = self._moe_static_vs_rl()
-        write_json(f"{self.config.benchmark_dir}/{self.config.run_name}_benchmarks.json", results)
+        write_json(
+            f"{self.config.benchmark_dir}/{self.config.run_name}_benchmarks.json",
+            results,
+        )
         return results
 
     def _static_baselines(self) -> dict[str, object]:
@@ -69,7 +77,9 @@ class BenchmarkSuite:
                 bits = nearest_allowed_discrete_bit_width(4.0, config)
             else:
                 bits = max(config.discrete_bit_widths)
-            return QuantizationDecision(mode=QuantMode.DISCRETE, base_bit_width=int(bits))
+            return QuantizationDecision(
+                mode=QuantMode.DISCRETE, base_bit_width=int(bits)
+            )
 
         baselines = {
             "always_safe": always_safe,
@@ -102,7 +112,9 @@ class BenchmarkSuite:
             ),
             episode_offset=3_000_000,
             phase="eval",
-            prepare_decision=lambda decision, state: finalize_decision(decision, state, config),
+            prepare_decision=lambda decision, state: finalize_decision(
+                decision, state, config
+            ),
         )
         return summarize_episode_results(results)
 
@@ -122,10 +134,16 @@ class BenchmarkSuite:
                     quant_mode=QuantMode.HYBRID.value,
                 ),
             },
-            per_hardware=(HardwareType.GPU, HardwareType.CPU, HardwareType.LOW_RESOURCE),
+            per_hardware=(
+                HardwareType.GPU,
+                HardwareType.CPU,
+                HardwareType.LOW_RESOURCE,
+            ),
         )
         single_policy_gap = self._generalization_gap(per_hardware, "single_gpu_policy")
-        multi_policy_gap = self._generalization_gap(per_hardware, "multi_hardware_policy")
+        multi_policy_gap = self._generalization_gap(
+            per_hardware, "multi_hardware_policy"
+        )
         return {
             "train": train,
             "per_hardware": per_hardware,
@@ -150,7 +168,13 @@ class BenchmarkSuite:
                     quant_mode=QuantMode.DYNAMIC.value,
                 ),
             },
-            deltas={"quality_variance_delta": ("mean_stability_penalty", "static", "dynamic")},
+            deltas={
+                "quality_variance_delta": (
+                    "mean_stability_penalty",
+                    "static",
+                    "dynamic",
+                )
+            },
         )
 
     def _discrete_vs_learned(self) -> dict[str, object]:
@@ -206,7 +230,9 @@ class BenchmarkSuite:
                     moe_fixed_variant=None,
                 ),
             },
-            deltas={"reward_delta": ("mean_reward", "single_variant", "packed_variant_bank")},
+            deltas={
+                "reward_delta": ("mean_reward", "single_variant", "packed_variant_bank")
+            },
         )
 
     def _moe_static_vs_rl(self) -> dict[str, object]:
@@ -225,7 +251,11 @@ class BenchmarkSuite:
             },
             deltas={
                 "reward_delta": ("mean_reward", "static_policy", "rl_policy"),
-                "cache_miss_delta": ("mean_cache_miss_count", "static_policy", "rl_policy"),
+                "cache_miss_delta": (
+                    "mean_cache_miss_count",
+                    "static_policy",
+                    "rl_policy",
+                ),
             },
         )
 
@@ -247,7 +277,9 @@ class BenchmarkSuite:
         )
 
     def _variant(self, suffix: str, **overrides: object) -> FrameworkConfig:
-        return self._benchmark_config(run_name=f"{self.config.run_name}_{suffix}", **overrides)
+        return self._benchmark_config(
+            run_name=f"{self.config.run_name}_{suffix}", **overrides
+        )
 
     def _release_trainer(self, trainer) -> None:
         close = getattr(trainer, "close", None)

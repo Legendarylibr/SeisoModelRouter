@@ -6,4 +6,8 @@ from seiso.vendor.bootstrap import (
     require_vendor_package,
 )
 
-__all__ = ["ensure_vendor_importable", "make_vendor_bootstrap", "require_vendor_package"]
+__all__ = [
+    "ensure_vendor_importable",
+    "make_vendor_bootstrap",
+    "require_vendor_package",
+]
