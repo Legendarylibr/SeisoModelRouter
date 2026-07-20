@@ -1,5 +1,7 @@
 # Seiso Smart Router
 
+Not serving inference on this. Just keeping it open source since part of the project orginally. Seems like alot of unknown 
+
 Standalone Smart Router service extracted from SeisoLocalAI.
 
 This repo contains the router server, Nemotron-Orchestrator-8B routing path,
